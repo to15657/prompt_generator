@@ -537,6 +537,9 @@ if st.button("Generate AI Prompt (Open AI)"):
     "Content-Type": "application/json",
     "Authorization": f"Bearer {st.session_state.api_key}"
     }
+
+    st.write(f"API Key: {st.session_state.api_key}")
+
     payload = {
         "model": "gpt-4o-mini",
         "messages": [
