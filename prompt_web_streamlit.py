@@ -5,13 +5,13 @@ from openai import OpenAI
 import requests
 import clipboard
 
+# Initialize session state for API key
+if "api_key" not in st.session_state:
+    st.session_state.api_key = None
+
 # Set OpenAI API key from environment variable
 # Check if the API key exists in session state or environment variable
-openai.api_key = st.session_state.get(os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
-
-# Verify API key is set (for debugging)
-if not openai.api_key:
-    st.error("OpenAI API Key is missing. Please set it by the Generate AI prompt button")
+openai.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
 
 def on_copy_click(text):
     # st.session_state.copied.append(text)
@@ -307,12 +307,16 @@ color_palettes = [
     {"title": "Rainbow gradient (prismatic, multi-colored blend)", "url": "", "image_url": ""},
 ]
 
-# Modern minimalist style for the UI
-st.set_page_config(page_title="AI Picture Prompt Generator", layout="centered", initial_sidebar_state="collapsed")
-
 print("\n--------------------------------------------------")
 print("NEW SESSION")
 print("--------------------------------------------------")
+
+# Modern minimalist style for the UI
+st.set_page_config(page_title="AI Picture Prompt Generator", layout="centered", initial_sidebar_state="collapsed")
+
+# Verify API key is set (for debugging)
+if not openai.api_key:
+    st.error("OpenAI API Key is missing. Please set it by the Generate AI prompt button")
 
 # -----------------------------------------------------
 # Statement management
@@ -513,6 +517,7 @@ else:
     if st.button("Save API Key"):
         if api_key_input:
             st.session_state.api_key = api_key_input
+            openai.api_key = api_key_input
             st.success("API Key has been saved!")
         else:
             st.error("Please enter a valid API Key.")
