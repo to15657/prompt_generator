@@ -8,7 +8,8 @@ import clipboard
 # Set OpenAI API key from environment variable
 # Check if the API key exists in session state or environment variable
 if "api_key" not in st.session_state:
-    st.session_state.api_key = os.getenv("API_KEY", "")  # Check environment variable as a fallback
+    st.session_state.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
+    st.write(f"API Key: {st.session_state.api_key}")
 
 def on_copy_click(text):
     # st.session_state.copied.append(text)
@@ -572,8 +573,10 @@ if st.button("Generate AI Prompt (Open AI)"):
             except (KeyError, IndexError) as e:
                 print(f"/!\ Error extracting content from response: {e}")
                 generated_prompt = ""
+                st.error(f"Error: {e}")
         else:
             print(f"/!\ OpenAI API error: {response.text}")
+            st.error(f"Error code = {response.status_code} -> {response.text}")
             generated_prompt = ""
 
         # Store the generated prompt in session state
