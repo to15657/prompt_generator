@@ -543,14 +543,15 @@ if st.button("Generate AI Prompt (Open AI)"):
     )
 
     # Call the OpenAI API to generate the description
+    print(f"API Key = {openai.api_key}")
+    st.write(f"API Key: {openai.api_key}")
+
+    # Set API in header
     client = OpenAI()
     headers = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {openai.api_key}"
     }
-
-    print(f"API Key = {openai.api_key}")
-    st.write(f"API Key: {openai.api_key}")
 
     payload = {
         "model": "gpt-4o-mini",
