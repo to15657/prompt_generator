@@ -3,8 +3,6 @@ import streamlit as st
 import openai
 from openai import OpenAI
 from openai import OpenAIError
-import requests
-import clipboard
 
 # Initialize session state for API key
 if "api_key" not in st.session_state:
@@ -13,14 +11,6 @@ if "api_key" not in st.session_state:
 # Set OpenAI API key from environment variable
 # Check if the API key exists in session state or environment variable
 openai.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
-
-def on_copy_click(text):
-    # Generate a Streamlit-compatible JavaScript copy button
-    st.markdown(f"""
-        <button onclick="navigator.clipboard.writeText(`{text}`)">Copy to Clipboard</button>
-        """,
-        unsafe_allow_html=True
-    )
 
 # Predefined options for dropdowns and fields
 style_options = [
@@ -320,8 +310,8 @@ print("--------------------------------------------------")
 st.set_page_config(page_title="AI Picture Prompt Generator", layout="centered", initial_sidebar_state="collapsed")
 
 # Verify API key is set (for debugging)
-if not openai.api_key:
-    st.error("OpenAI API Key is missing. Please set it by the Generate AI prompt button")
+# if not openai.api_key:
+#     st.error("OpenAI API Key is missing. Please set it by the Generate AI prompt button")
 
 # -----------------------------------------------------
 # Statement management
@@ -431,7 +421,7 @@ st.markdown(
 # Header
 st.title("AI Picture Prompt Generator")
 st.write("Create a detailed picture prompt by filling in the fields below. Let the AI craft the perfect description for your visual idea!")
-st.write(f"API Key: {openai.api_key}")
+# st.write(f"API Key: {openai.api_key}")
 
 # User Inputs
 st.header("Prompt Details")
@@ -551,7 +541,7 @@ if st.button("Generate AI Prompt (Open AI)"):
 
     # Call the OpenAI API to generate the description
     print(f"API Key = {openai.api_key}")
-    st.write(f"API Key: {openai.api_key}")
+    # st.write(f"API Key: {openai.api_key}")
 
     # Set API in header
     headers = {
