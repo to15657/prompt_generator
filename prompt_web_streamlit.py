@@ -7,7 +7,7 @@ import clipboard
 
 # Set OpenAI API key from environment variable
 # Check if the API key exists in session state or environment variable
-openai.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
+openai.api_key = st.session_state.get(os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
 
 # Verify API key is set (for debugging)
 if not openai.api_key:
@@ -420,7 +420,7 @@ st.markdown(
 # Header
 st.title("AI Picture Prompt Generator")
 st.write("Create a detailed picture prompt by filling in the fields below. Let the AI craft the perfect description for your visual idea!")
-st.write(f"API Key: {st.session_state.api_key}")
+st.write(f"API Key: {openai.api_key}")
 
 # User Inputs
 st.header("Prompt Details")
@@ -513,7 +513,6 @@ else:
     if st.button("Save API Key"):
         if api_key_input:
             st.session_state.api_key = api_key_input
-            api_key = api_key_input
             st.success("API Key has been saved!")
         else:
             st.error("Please enter a valid API Key.")
@@ -543,7 +542,7 @@ if st.button("Generate AI Prompt (Open AI)"):
     "Authorization": f"Bearer {openai.api_key}"
     }
 
-    st.write(f"API Key: {st.session_state.api_key}")
+    st.write(f"API Key: {openai.api_key}")
 
     payload = {
         "model": "gpt-4o-mini",
