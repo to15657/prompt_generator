@@ -7,8 +7,11 @@ import clipboard
 
 # Set OpenAI API key from environment variable
 # Check if the API key exists in session state or environment variable
-if "api_key" not in st.session_state:
-    st.session_state.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
+openai.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
+
+# Verify API key is set (for debugging)
+if not openai.api_key:
+    st.error("OpenAI API Key is missing. Please set it by the Generate AI prompt button")
 
 def on_copy_click(text):
     # st.session_state.copied.append(text)
@@ -510,6 +513,7 @@ else:
     if st.button("Save API Key"):
         if api_key_input:
             st.session_state.api_key = api_key_input
+            api_key = api_key_input
             st.success("API Key has been saved!")
         else:
             st.error("Please enter a valid API Key.")
@@ -536,7 +540,7 @@ if st.button("Generate AI Prompt (Open AI)"):
     client = OpenAI()
     headers = {
     "Content-Type": "application/json",
-    "Authorization": f"Bearer {st.session_state.api_key}"
+    "Authorization": f"Bearer {openai.api_key}"
     }
 
     st.write(f"API Key: {st.session_state.api_key}")
