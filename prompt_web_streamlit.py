@@ -2,6 +2,7 @@ import os
 import streamlit as st
 import openai
 from openai import OpenAI
+from openai import OpenAIError
 import requests
 import clipboard
 
@@ -428,7 +429,7 @@ st.write(f"API Key: {openai.api_key}")
 
 # User Inputs
 st.header("Prompt Details")
-topic = st.text_input("The focus and position (e.g., A lion conducting an orchestra):", "a monkey in the jungle")
+topic = st.text_input("The focus and position (e.g., A lion conducting an orchestra):", "invent a prompt that is fun and creative")
 ratio = st.radio(
     "Aspect Ratio:",
     options = ["Landscape", "Square", "Portrait"],
@@ -547,7 +548,6 @@ if st.button("Generate AI Prompt (Open AI)"):
     st.write(f"API Key: {openai.api_key}")
 
     # Set API in header
-    client = OpenAI()
     headers = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {openai.api_key}"
@@ -573,34 +573,72 @@ if st.button("Generate AI Prompt (Open AI)"):
         # time.sleep(1)
         # generated_prompt = f"### {random_text}\n\n{prompt_structure}"
 
+        client = OpenAI()
+
         print(f"AI Button pressed -> generated_prompt = {generated_prompt}")
 
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        if response.status_code == 200:
-            try:
-                token = response.json()['usage']['total_tokens']
-                generated_prompt = response.json()['choices'][0]['message']['content']
-                print(f'OK token used = {token} -> result {generated_prompt}')
-            except (KeyError, IndexError) as e:
-                print(f"/!\ Error extracting content from response: {e}")
-                generated_prompt = ""
-                st.error(f"Error: {e}")
-        else:
-            print(f"/!\ OpenAI API error: {response.text}")
-            st.error(f"Error code = {response.status_code} -> {response.text}")
-            generated_prompt = ""
+        # Call OpenAI API using the Python SDK
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant for generating creative prompts."
+                },
+                {
+                    "role": "user",
+                    "content": f"Create a detailed and structured visual prompt for generating an image based on the following inputs:\n{prompt_structure}"
+                }
+            ],
+            max_tokens=600,
+            temperature=temperature,
+        )
 
-        # Store the generated prompt in session state
+        # Extract the generated content
+        generated_prompt = response.choices[0].message.content
+        token_usage = response.usage.total_tokens
+
+        # Log the result
+        print(f'OK token used = {token_usage} -> result {generated_prompt}')
         st.session_state.generated_prompt = generated_prompt
 
-        # Update the Markdown placeholder with the latest generated prompt
-        if st.session_state.generated_prompt:
-            print("3/ After AI button pressed -> update Markdown")
-        else:
-            print("3/ After AI button pressed -> st.session_state.generated_prompt EMPTY")
+    except OpenAIError as e:
+        # Handle errors gracefully
+        st.error(f"An error occurred while generating the prompt: {e}")
+        print(f"OpenAI API error: {e}")
+        generated_prompt = ""
 
     except Exception as e:
-        st.error(f"An error occurred while generating the prompt: {e}")
+        # Handle other exceptions
+        st.error(f"An unexpected error occurred: {e}")
+        print(f"Unexpected error: {e}")
+
+    #     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+    #     if response.status_code == 200:
+    #         try:
+    #             token = response.json()['usage']['total_tokens']
+    #             generated_prompt = response.json()['choices'][0]['message']['content']
+    #             print(f'OK token used = {token} -> result {generated_prompt}')
+    #         except (KeyError, IndexError) as e:
+    #             print(f"/!\ Error extracting content from response: {e}")
+    #             generated_prompt = ""
+    #             st.error(f"Error: {e}")
+    #     else:
+    #         print(f"/!\ OpenAI API error: {response.text}")
+    #         st.error(f"Error code = {response.status_code} -> {response.text}")
+    #         generated_prompt = ""
+
+    #     # Store the generated prompt in session state
+    #     st.session_state.generated_prompt = generated_prompt
+
+    #     # Update the Markdown placeholder with the latest generated prompt
+    #     if st.session_state.generated_prompt:
+    #         print("3/ After AI button pressed -> update Markdown")
+    #     else:
+    #         print("3/ After AI button pressed -> st.session_state.generated_prompt EMPTY")
+
+    # except Exception as e:
+    #     st.error(f"An error occurred while generating the prompt: {e}")
 
 # Display the generated prompt
 st.subheader("Generated Prompt")
@@ -622,50 +660,3 @@ if st.session_state.generated_prompt:
      st.write(st.session_state.generated_prompt, unsafe_allow_html=True)
 else:
     print("2/ st.session_state.generated_prompt EMPTY !")
-
-# generated_prompt_2 = f"""
-#         ### Visual Prompt for Image Generation
-
-#         **Primary Focus Element:**  
-#         - Campfire: A warm, crackling campfire at the center of the image, with glowing embers and flames providing a cozy light.
-
-#         **Foreground:**  
-#         - Surfers: A diverse group of male and female surfers, dressed in colorful wetsuits. They are gathered around the campfire, some sitting on logs, others standing and chatting. Their surfboards are propped up nearby, showcasing vibrant designs.
-
-#         **Background:**  
-#         - Beach: A sandy beach stretching across the lower part of the image, with gentle waves lapping at the shore.  
-#         - Sea: A calm ocean with a subtle gradient of blues, reflecting the golden hour light.  
-#         - Camper Van: A retro-style camper van parked slightly off to one side, painted in bright colors, with a surfboard attached to its roof.  
-#         - Surf Boards: Several surfboards scattered around the foreground, some leaning against the camper van, others lying in the sand.
-
-#         **Style:**  
-#         - Pixel Art: The entire scene is rendered in pixel art style, with a nostalgic, 8-bit aesthetic that emphasizes simplicity and charm.
-
-#         **Lighting:**  
-#         - Golden Hour: The scene is bathed in warm golden hues, casting long shadows and creating a magical, inviting atmosphere.
-
-#         **Weather:**  
-#         - Clear Skies: An endless sky with a gradient from deep blue at the top to a warm orange near the horizon, scattered with a few wispy clouds.
-
-#         **Atmosphere:**  
-#         - Relaxed and Joyful: The ambiance is one of camaraderie and fun, capturing the essence of a perfect beach day with friends, laughter, and the warmth of the campfire.
-
-#         **Camera Type:**  
-#         - Digital Camera: A standard digital camera, capturing a vibrant, high-resolution pixelated image.
-
-#         **Camera Angle:**  
-#         - Eye Level: The camera is positioned at eye level, giving a sense of intimacy and engagement with the surfers.
-
-#         **Camera Position:**  
-#         - Slightly Off-Center: Positioned to the left of the campfire, allowing a view of both the surfers and the camper van in the background.
-
-#         **Color Palette:**  
-#         - Warm and Inviting: Dominant colors include shades of orange, yellow, and red for the campfire, contrasted with cool blues for the sea and sky, and vibrant colors for the surfers' wetsuits and surfboards.
-
-#         **Aspect Ratio:**  
-#         - Landscape: The image is wide, emphasizing the beach and ocean expanse, creating a sense of openness and freedom.
-
-#         ---
-
-#         This structured visual prompt can be used to generate a captivating pixel art scene that encapsulates the joy of beach life and surfing culture during a beautiful golden hour.
-#         """
