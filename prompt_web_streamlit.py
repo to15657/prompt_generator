@@ -15,8 +15,12 @@ if "api_key" not in st.session_state:
 openai.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
 
 def on_copy_click(text):
-    # st.session_state.copied.append(text)
-    clipboard.copy(text)
+    # Generate a Streamlit-compatible JavaScript copy button
+    st.markdown(f"""
+        <button onclick="navigator.clipboard.writeText(`{text}`)">Copy to Clipboard</button>
+        """,
+        unsafe_allow_html=True
+    )
 
 # Predefined options for dropdowns and fields
 style_options = [
@@ -643,20 +647,18 @@ if st.button("Generate AI Prompt (Open AI)"):
 # Display the generated prompt
 st.subheader("Generated Prompt")
 
-# Display the generated prompt if it exists
-if "generated_prompt" in st.session_state and st.session_state.generated_prompt:
-    generated_prompt = st.session_state.generated_prompt
+# # Display the generated prompt if it exists
+# if "generated_prompt" in st.session_state and st.session_state.generated_prompt:
+#     generated_prompt = st.session_state.generated_prompt
 
-    # Display the copy button
-    st.button("Copy", on_click=on_copy_click, args=(generated_prompt,))
-
-else:
-    print("1/ st.session_state.generated_prompt EMPTY")
-    st.write("No prompt was generated. Please try again.")
+# else:
+#     print("1/ st.session_state.generated_prompt EMPTY")
+#     st.write("No prompt was generated. Please try again.")
 
 # Update the Markdown placeholder with the latest generated prompt
 if st.session_state.generated_prompt:
      print("2/ st.session_state.generated_prompt EXIST")
-     st.write(st.session_state.generated_prompt, unsafe_allow_html=True)
+     st.code(st.session_state.generated_prompt, language="markdown")
+    #  st.write(st.session_state.generated_prompt, unsafe_allow_html=True)
 else:
     print("2/ st.session_state.generated_prompt EMPTY !")
