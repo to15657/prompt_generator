@@ -1,3 +1,5 @@
-openai
 streamlit
+openai
+requests
 clipboard
+
