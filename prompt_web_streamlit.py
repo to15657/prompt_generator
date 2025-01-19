@@ -390,6 +390,7 @@ st.markdown(
         }
         .stTextInput > div > input, .stTextArea textarea {
             background-color: #f3f4f6 !important;
+            color: #333 !important;                 /* Dark text */
             border-radius: 8px !important;
             border: 1px solid #ddd !important;
             padding: 0.5rem !important;
@@ -421,6 +422,7 @@ st.markdown(
             align-items: center;
             font-size: 0.9rem;
         }
+
     </style>
     """,
     unsafe_allow_html=True,
