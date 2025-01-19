@@ -573,7 +573,7 @@ if st.button("Generate AI Prompt (Open AI)"):
         # time.sleep(1)
         # generated_prompt = f"### {random_text}\n\n{prompt_structure}"
 
-        client = OpenAI()
+        client = OpenAI(api_key=openai.api_key)
 
         print(f"AI Button pressed -> generated_prompt = {generated_prompt}")
 
