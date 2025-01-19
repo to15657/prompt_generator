@@ -9,7 +9,6 @@ import clipboard
 # Check if the API key exists in session state or environment variable
 if "api_key" not in st.session_state:
     st.session_state.api_key = st.session_state.get("api_key", os.getenv("OPENAI_API_KEY"))  # Check environment variable as a fallback
-    st.write(f"API Key: {st.session_state.api_key}")
 
 def on_copy_click(text):
     # st.session_state.copied.append(text)
@@ -418,6 +417,7 @@ st.markdown(
 # Header
 st.title("AI Picture Prompt Generator")
 st.write("Create a detailed picture prompt by filling in the fields below. Let the AI craft the perfect description for your visual idea!")
+st.write(f"API Key: {st.session_state.api_key}")
 
 # User Inputs
 st.header("Prompt Details")
@@ -561,7 +561,6 @@ if st.button("Generate AI Prompt (Open AI)"):
         # time.sleep(1)
         # generated_prompt = f"### {random_text}\n\n{prompt_structure}"
 
-    
         print(f"AI Button pressed -> generated_prompt = {generated_prompt}")
 
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
