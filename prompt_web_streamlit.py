@@ -505,6 +505,7 @@ if st.button("Generate Basic Prompt"):
 if st.session_state.api_key:
     st.success("API Key is already set.")
     st.write("Your API Key is stored securely and ready to use.")
+    print(f"API Key = {openai.api_key}")
 else:
     # Allow the user to input the API key if not set
     api_key_input = st.text_input(
@@ -518,6 +519,7 @@ else:
         if api_key_input:
             st.session_state.api_key = api_key_input
             openai.api_key = api_key_input
+            print(f"API Key = {openai.api_key}")
             st.success("API Key has been saved!")
         else:
             st.error("Please enter a valid API Key.")
@@ -547,6 +549,7 @@ if st.button("Generate AI Prompt (Open AI)"):
     "Authorization": f"Bearer {openai.api_key}"
     }
 
+    print(f"API Key = {openai.api_key}")
     st.write(f"API Key: {openai.api_key}")
 
     payload = {
