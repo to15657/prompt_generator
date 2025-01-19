@@ -402,6 +402,15 @@ st.markdown(
         .stButton > button:hover {
             background-color: #0056b3;
         }
+        .stButton > button[disabled] {
+            background-color: #cccccc !important;
+            color: #666666 !important;
+            border: 0px solid #999999 !important;
+            border-radius: 8px;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            cursor: not-allowed !important;
+        }
         .stRadio div {
             flex-direction: row !important;
             gap: 1rem;
@@ -424,7 +433,7 @@ st.write("Create a detailed picture prompt by filling in the fields below. Let t
 # st.write(f"API Key: {openai.api_key}")
 
 # User Inputs
-st.header("Prompt Details")
+# st.header("Prompt Details")
 topic = st.text_input("The focus and position (e.g., A lion conducting an orchestra):", "invent a prompt that is fun and creative")
 ratio = st.radio(
     "Aspect Ratio:",
@@ -447,7 +456,7 @@ camera_position = st.selectbox("Camera position:", options = camera_positions, i
 color_palette = display_parameter_dropbox("Color palette:", color_palettes)
 
 st.markdown("[You can find more style here](https://freeflo.ai/styles/)")
-additional_style = st.text_area("Add your how style (e.g. the lion is on the left hand side):", "")
+additional_style = st.text_area("Add your own style (e.g. Ethereal Painting, Funk Art, etc.):", "")
 
 # Creativity Slider
 temperature = st.slider(
@@ -521,7 +530,10 @@ else:
         else:
             st.error("Please enter a valid API Key.")
 
-if st.button("Generate AI Prompt (Open AI)"):
+# Disable the "Generate AI Prompt" button if the API Key is not set
+is_api_key_set = st.session_state.api_key is not None
+
+if st.button("Generate AI Prompt (Open AI)", disabled=not is_api_key_set):
     # Combine user inputs into a structured prompt
     prompt_structure = (
         f"### Primary focus element:\n{topic}\n"
@@ -636,9 +648,6 @@ if st.button("Generate AI Prompt (Open AI)"):
     # except Exception as e:
     #     st.error(f"An error occurred while generating the prompt: {e}")
 
-# Display the generated prompt
-st.subheader("Generated Prompt")
-
 # # Display the generated prompt if it exists
 # if "generated_prompt" in st.session_state and st.session_state.generated_prompt:
 #     generated_prompt = st.session_state.generated_prompt
@@ -649,8 +658,10 @@ st.subheader("Generated Prompt")
 
 # Update the Markdown placeholder with the latest generated prompt
 if st.session_state.generated_prompt:
-     print("2/ st.session_state.generated_prompt EXIST")
-     st.code(st.session_state.generated_prompt, language="markdown")
+    # Display the generated prompt
+    st.subheader("Generated Prompt")
+    print("2/ st.session_state.generated_prompt EXIST")
+    st.code(st.session_state.generated_prompt, language="markdown")
     #  st.write(st.session_state.generated_prompt, unsafe_allow_html=True)
 else:
     print("2/ st.session_state.generated_prompt EMPTY !")
