@@ -47,6 +47,7 @@ driver = webdriver.Chrome(service=service, options=options)
 
 # Launch the script
 # python3.11 ./extract_web_data.py
+
 import re
 
 def reduce_zoom(driver, zoom_level=80):
@@ -158,43 +159,6 @@ def download_image_with_referer(image_url, referer_url, output_path):
         print(f"Failed to download image from {image_url}: {e}")
 
 # Scroll and load all thumbnails
-def scroll_and_load_thumbnails(driver, max_scroll_attempts=10):
-    last_height = driver.execute_script("return document.body.scrollHeight")
-    scroll_attempts = 0
-    nb_scroll = 0
-    max_nb_scroll = 1
-
-    while ((scroll_attempts < max_scroll_attempts) and (nb_scroll < max_nb_scroll)):
-        # Scroll to the bottom of the page
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # driver.execute_script("window.scrollBy(0, arguments[0]);", 200)
-        time.sleep(2)  # Wait for new content to load
-
-        # Get the new scroll height
-        new_height = driver.execute_script("return document.body.scrollHeight")
-
-        print(f"scroll_and_load_thumbnails() = last_height = {last_height}")
-        print(f"scroll_and_load_thumbnails() = new_height = {new_height}")
-
-        nb_scroll += 1 # increase scroll counter
-
-        # Check if new content has been loaded
-        if new_height == last_height:
-            scroll_attempts += 1  # Increment if no new content is loaded
-        else:
-            scroll_attempts = 0  # Reset attempts if new content is found
-            last_height = new_height
-
-        print(f"scroll_and_load_thumbnails() = scroll_attempts = {scroll_attempts}")
-        print(f"scroll_and_load_thumbnails() = nb_scroll = {nb_scroll}")
-
-    # Collect all thumbnails after scrolling is complete
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.css-1jc5mt5"))
-    )
-    return driver.find_elements(By.CSS_SELECTOR, "a.css-1jc5mt5")
-
-# Scroll and load all thumbnails
 def scroll_once_and_load_thumbnails(driver, max_scroll_attempts=10):
     last_height = driver.execute_script("return document.body.scrollHeight")
     scroll_attempts = 0
@@ -207,7 +171,7 @@ def scroll_once_and_load_thumbnails(driver, max_scroll_attempts=10):
 
     # Get the new scroll height
     # new_height = driver.execute_script("return document.body.scrollHeight")
-    driver.execute_script("window.scrollBy(0, arguments[0]);", 300)
+    driver.execute_script("window.scrollBy(0, arguments[0]);", 400)
 
     print(f"scroll_and_load_thumbnails() = last_height = {last_height}")
     #print(f"scroll_and_load_thumbnails() = new_height = {new_height}")
@@ -226,9 +190,9 @@ def scroll_once_and_load_thumbnails(driver, max_scroll_attempts=10):
 
     # Collect all thumbnails after scrolling is complete
     WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.css-1jc5mt5"))
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "img"))
     )
-    return driver.find_elements(By.CSS_SELECTOR, "a.css-1jc5mt5")
+    return driver.find_elements(By.CSS_SELECTOR, "img")
 
 import re
 
@@ -262,13 +226,11 @@ if __name__ == "__main__":
     # username = "best_all_time"
     # username = "pancholi"
     # username = "yaisroman"
-    # username = "abrahammers"
-    # username = "kczudowa"
-    username = "djembakos"
-    base_url = "https://ideogram.ai"
-    url = f"{base_url}/u/{username}/pinned"   #/generated
+    username = "openAI"
+    base_url = "https://sora.com/explore/images"
+    url = f"{base_url}"   #/generated
     # url = f"{base_url}/t/explore?f=all_time"   #/generated
-    output_file = f"ideogram_prompts_{username}.md"
+    output_file = f"ChatGPT_prompts_{username}.md"
 
     # Example usage
     renumber_prompts_generic(output_file)
@@ -285,22 +247,24 @@ if __name__ == "__main__":
     try:
         driver.get(url)
         # Add random delay before clicking
-        time.sleep(random.uniform(2, 4))
+        time.sleep(random.uniform(4, 8))
 
         # Scroll and load all thumbnails
         # thumbnails = scroll_and_load_thumbnails(driver)
 
+        print(f"Try to find img tags - WebDriverWait()")
+
         # Wait for the thumbnails to load
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.css-1jc5mt5"))
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'img'))
         )
 
         # Reduce the zoom (simulate Ctrl "-" action)
-        reduce_zoom(driver, zoom_level=25) 
+        # reduce_zoom(driver, zoom_level=25) 
 
         # scroll_down_and_back_up(driver, scroll_pixels=250, scroll_times=100, pause_time=0.2)
 
-        thumbnails = driver.find_elements(By.CSS_SELECTOR, "a.css-1jc5mt5")
+        thumbnails = driver.find_elements(By.CSS_SELECTOR, 'img')
 
         # print(f"thumbnails found = {thumbnails}")
         num_thumbnails = len(thumbnails)
@@ -313,54 +277,62 @@ if __name__ == "__main__":
         print(f"Number of previous Thumbnail found in {output_file} = {global_index}\n")
 
         # Keep track of processed links
-        max_scroll_attempts = 30  # Define the maximum number of scroll attempts (5 = 100)
+        max_scroll_attempts = 160  # Define the maximum number of scroll attempts (5 = 100)
 
-        for scroll_attempt in range(max_scroll_attempts):
-            print(f"Scroll attempt: {scroll_attempt + 1}/{max_scroll_attempts}")
+        for scroll_attempt in range(1, max_scroll_attempts + 1):
+            print(f"Current scroll status: {scroll_attempt + 1}/{max_scroll_attempts}")
 
             index = 0  # Initialize index
 
             while index < len(thumbnails):
                 try:
                     # Refresh thumbnail list to avoid stale element issues
-                    thumbnails = driver.find_elements(By.CSS_SELECTOR, "a.css-1jc5mt5")
+                    # thumbnails = driver.find_elements(By.CSS_SELECTOR, 'img')
+                    img = driver.find_elements(By.TAG_NAME, "img")
                     
-                    # Check if the index is still within bounds
-                    if index >= len(thumbnails):
-                        print("Index exceeds number of thumbnails. Breaking the loop.")
+                    print(f"Image Index = {index} / {len(thumbnails)} for scroll #{scroll_attempt}")
+
+                    # Check if the current index is within the bounds of the refreshed image list
+                    if index >= len(img):
+                        print(f"Index {index} out of range for current img list (length: {len(img)}). Breaking the loop.")
                         break
 
-                    thumbnail = thumbnails[index]  # Access the current thumbnail
+                    anchor_elements = img[index].find_elements(By.XPATH, "./ancestor::a")
+                    if not anchor_elements:
+                        print(f"No anchor element found for image at index {index}. Skipping.")
+                        index += 1
+                        continue
+                    thumbnail = anchor_elements[0]
+                    #print(f"Thumbnail path = {thumbnail}\n")
                     link = thumbnail.get_attribute("href")
+                    #rint(f"Thumbnail link = {link}\n")
 
                     # Skip already processed thumbnails
                     if link in previous_file_processed_links:
-                        #print(f"Thumbnail already processed: {link}. Skipping.")
+                        print(f"Thumbnail already processed: {link}. Skipping.")
                         index += 1
                         continue
 
                     # Save the thumbnail image
                     img_tag = thumbnail.find_element(By.CSS_SELECTOR, "img")
                     img_src = img_tag.get_attribute("src")
-                    # print(f"Thumbnail picture URL = {img_src}\n")
+                    #print(f"Thumbnail picture URL = {img_src} for tag ={img_tag} \n")
 
                     if not link.startswith("http"):
                         link = base_url + link
 
-                    # Open the link
-                    # /!\ "css-jg0jub" can change overtime !
-                    # This lead to a Chrome Driver error
-                    driver.get(link)
-                    WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, "div.MuiBox-root.css-jg0jub"))
-                    )
 
-                    # Extract the prompt
-                    prompt_section = driver.find_element(By.CSS_SELECTOR, "div.MuiBox-root.css-jg0jub")
-                    prompt_parts = prompt_section.find_elements(By.CSS_SELECTOR, "p.MuiTypography-body1")
-                    prompt_text = " ".join([part.text for part in prompt_parts])
-        
-                    print(f"{global_index+1}/ Extracted prompt: {prompt_text}\n")
+                    # Wait up to 10 seconds for the element to appear
+                    driver.get(link)
+                    prompt_element = WebDriverWait(driver, 20).until(
+                        EC.presence_of_element_located(
+                            (By.XPATH, "//div[div[normalize-space()='Prompt']]/button | //div[div[normalize-space()='Remix']]/button")
+                        )
+                    )
+                    prompt_text = prompt_element.text
+                    # print(prompt_text)
+
+                    print(f"Global Index = {global_index+1} / Extracted prompt: {prompt_text}\n")
                     prompt = f"# {username} * Prompt {global_index+1}\n * Page Link: {link}\n * Prompt:{prompt_text}\n![Image Link: {img_src}]({img_src})\n\n"
                     # prompts.append(f"# {username} * Prompt {global_index+1}\n * Page Link: {link}\n * Prompt:{prompt_text}\n![Image Link: {img_src}]({img_src})\n\n")
 
@@ -385,8 +357,9 @@ if __name__ == "__main__":
                 time.sleep(1)  # Small delay to mimic human browsing
 
                 # Navigate back to the main page
+                # ------------------------------
                 driver.get(url)
-                time.sleep(2.5)
+                time.sleep(5)
 
             # Refresh thumbnails after scrolling
             print(f"\n>>>>>>>>>>> Scrolling {scroll_attempt}/{max_scroll_attempts}\n")

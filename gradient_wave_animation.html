@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Seamless Animated Wave</title>
+    <style>
+        /* Reset page margin/padding */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 
+        The container for our drifting radial gradient.
+        We repeat the background horizontally (repeat-x).
+        We size each tile to 50% of the container width.
+        */
+        .gradient-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 400%;
+            height: 200%;
+
+            /* Repeat the gradient horizontally so it “tiles” seamlessly side by side. */
+            background-repeat: repeat-x;
+
+            /* Each repeated tile is half the container's width and full height. */
+            background-size: 50% 100%;
+
+            /*
+            Define the radial gradient you want in each tile.
+            circle at center => a circle centered within each tile. */
+            /* background-image: radial-gradient(circle at center, #F460BC, #0088FF, #FFFFFF, #0088FF, #F460BC); */
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1.0) 0%, 30.0%, rgba(255, 255, 255, 0) 43%),
+                radial-gradient(circle at 40% 50%, rgba(244, 96, 188, 1.0) 0%, 30.0%, rgba(244, 96, 188, 0) 57%),
+                radial-gradient(circle at 60% 50%, rgba(0, 136, 255, 1.0) 0%, 30.0%, rgba(0, 136, 255, 0) 61%);
+            /* radial-gradient(circle at 60% 30%, rgba(255, 255, 255, 1.0) 0%, 100%, rgba(255, 255, 255, 0) 100%); */
+
+            /* Animate the background position from 0% to 50% to shift exactly one tile. */
+            animation: drift 30s linear infinite;
+            z-index: -2;
+        }
+
+        /* radial-gradient(circle at 10.416666666666668% 9.166666666666666%, rgba(255,255,255,0.5) 0%, 27.047%, rgba(255,255,255,0) 43%),
+         radial-gradient(circle at 72.08333333333333% 81.66666666666667%, rgba(244,96,188,0.5) 0%, 31.862999999999996%, rgba(244,96,188,0) 57%),
+          radial-gradient(circle at 13.333333333333334% 69.16666666666667%, rgba(0,136,255,0.24) 0%, 53.74099999999999%, rgba(0,136,255,0) 61%),
+         radial-gradient(circle at 48.9013671875% 49.521484375%, rgba(255,255,255,0.5) 0%, 100%, rgba(255,255,255,0) 100%) */
+
+        /* 
+        At 0% => background-position: 0 0
+        At 100% => background-position: 50% 0
+        This means we’ve shifted exactly one tile’s width (half the container),
+        which lines up identically with the next tile, so it loops perfectly.
+        */
+        @keyframes drift {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* The wave container sits behind content */
+        .wave-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            z-index: -1;
+        }
+
+        /* 
+      Our SVG is now 2× the normal width (2880 instead of 1440 in the viewBox). 
+      We then scale it up to 200% of the viewport, so we can slide left by 50%. 
+    */
+        .wave-container svg {
+            position: relative;
+            display: block;
+            width: 200%;
+            /* We'll animate the "height" as before. */
+            height: 200px;
+            animation: waveHeight 10s ease-in-out infinite;
+        }
+
+        /* Smoothly expand/contract the wave height (optional) */
+        @keyframes waveHeight {
+
+            0%,
+            100% {
+                height: 200px;
+            }
+
+            50% {
+                height: var(--wave-peak, 800px);
+                /* Fallback 800 if variable not set */
+            }
+        }
+
+        /* The group that holds the repeated paths—this is what we translate for the wave motion */
+        .wave-group {
+            animation: waveScroll 3s linear infinite;
+            filter: blur(2px);
+        }
+
+        /* Slide left from 0% to -50% of its own width to reveal the second copy seamlessly */
+        @keyframes waveScroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Gradient background -->
+    <div class="gradient-background"></div>
+
+    <!-- Container for our seamless wave -->
+    <div class="wave-container">
+        <!-- 
+      viewBox is now 0 0 2880 320, i.e. twice as wide as the original (which was 1440).
+      We place two copies of the same wave path side by side.
+    -->
+        <svg viewBox="0 0 2880 320" preserveAspectRatio="none">#F460BC, #0088FF, #000000
+            <defs>
+                <linearGradient id="waveGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#F460BC" stop-opacity="0.5" />
+                    <stop offset="70%" stop-color="#0088FF" stop-opacity="0.5" />
+                    <stop offset="100%" stop-color="#0098FF" stop-opacity="0.5" />
+                </linearGradient>
+            </defs>
+
+            <!-- Wrap both wave paths in a single group that we animate -->
+            <g class="wave-group" fill="url(#waveGradient2)">
+                <!-- First copy of the wave (original coordinates) -->
+                <path
+                    d="M0,256L48,245.3C96,235,192,213,288,181.3C384,149,480,107,576,101.3C672,96,768,128,864,138.7C960,149,1056,139,1152,154.7C1248,171,1344,213,1392,234.7L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+                </path>
+
+                <!-- Second copy, translated +1440 in x so it lines up exactly at the right edge of the first wave -->
+                <path transform="translate(1440,0)"
+                    d="M0,256L48,245.3C96,235,192,213,288,181.3C384,149,480,107,576,101.3C672,96,768,128,864,138.7C960,149,1056,139,1152,154.7C1248,171,1344,213,1392,234.7L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
+                </path>
+            </g>
+        </svg>
+
+    </div>
+
+    <!-- Simple inline script picking a random number on page load -->
+    <script>
+        // Random integer between 500 and 1000
+        const randomPeak = Math.floor(Math.random() * (1000 - 600 + 1)) + 600;
+        // Inject it as a CSS variable
+        document.documentElement.style.setProperty('--wave-peak', randomPeak + 'px');
+    </script>
+</body>
+
+</html>
